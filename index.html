@@ -1,97 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Field Visit Tracker</title>
-<style>
-body{
-font-family: Arial;
-text-align:center;
-background:#f2f2f2;
-}
-
-.card{
-background:white;
-padding:20px;
-margin:10px;
-border-radius:10px;
-box-shadow:0 2px 5px rgba(0,0,0,0.2);
-}
-
-.today{
-background:#d1ffd1;
-}
-
-</style>
+<title>Field Visit Dashboard</title>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h1>My Field Visit Tracker</h1>
+<div class="container">
+
+<div class="header">
+Field Visit Dashboard
+</div>
 
 <div id="yesterday" class="card"></div>
 <div id="today" class="card today"></div>
 <div id="tomorrow" class="card"></div>
 
-<script>
+<div class="nav">
+<a href="history.html">View Visit History →</a>
+</div>
 
-const sheetURL = "PASTE_YOUR_CSV_LINK";
+</div>
 
-fetch(sheetURL)
-.then(res => res.text())
-.then(data => {
-
-const rows = data.split("\n").slice(1);
-
-const visits = rows.map(r=>{
-const c = r.split(",");
-return {
-date:c[0],
-location:c[1],
-shift:c[2],
-status:c[3]
-}
-});
-
-const today = new Date();
-const yesterday = new Date(today);
-const tomorrow = new Date(today);
-
-yesterday.setDate(today.getDate()-1);
-tomorrow.setDate(today.getDate()+1);
-
-function format(d){
-return d.toISOString().split("T")[0];
-}
-
-function findVisit(date){
-return visits.find(v=>v.date==date);
-}
-
-function render(id,label,date){
-
-const v = findVisit(date);
-
-if(!v){
-document.getElementById(id).innerHTML = `<h2>${label}</h2>No data`;
-return;
-}
-
-document.getElementById(id).innerHTML = `
-<h2>${label}</h2>
-<p><b>Date:</b> ${v.date}</p>
-<p><b>Location:</b> ${v.location}</p>
-<p><b>Shift:</b> ${v.shift}</p>
-<p><b>Status:</b> ${v.status}</p>
-`;
-}
-
-render("yesterday","Yesterday",format(yesterday));
-render("today","Today",format(today));
-render("tomorrow","Tomorrow",format(tomorrow));
-
-});
-
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
