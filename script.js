@@ -4,7 +4,7 @@ const API_URL =
 async function loadData() {
     try {
         const res = await fetch(API_URL);
-        const text = await res.text();   // ✅ FIX: CSV is text
+        const text = await res.text();
 
         const data = parseCSV(text);
 
@@ -25,6 +25,7 @@ async function loadData() {
 }
 
 /* ---------------- CSV PARSER ---------------- */
+
 function parseCSV(text) {
     const lines = text.trim().split("\n");
     const headers = lines.shift().split(",");
@@ -42,6 +43,7 @@ function parseCSV(text) {
 }
 
 /* ---------------- DASHBOARD ---------------- */
+
 function processDashboard(data) {
     const today = new Date();
 
@@ -93,6 +95,7 @@ function renderCard(id, data, date) {
 }
 
 /* ---------------- HISTORY ---------------- */
+
 function loadHistory(data) {
     const container = document.getElementById("history");
     if (!container) return;
@@ -114,6 +117,7 @@ function loadHistory(data) {
 }
 
 /* ---------------- HELPERS ---------------- */
+
 function normalizeDate(dateStr) {
     const d = new Date(dateStr);
     if (isNaN(d)) return "";
@@ -149,6 +153,7 @@ function getLastVisitDays(data, society, currentDate) {
 }
 
 /* ---------------- SUMMARY ---------------- */
+
 function showSummary(data) {
     const total = data.length;
     const societies = new Set(data.map(d => d.Society)).size;
@@ -157,25 +162,57 @@ function showSummary(data) {
     if (!el) return;
 
     el.innerHTML = `
-        <strong>Total Visits:</strong> ${total} <br>
+        <strong>Total Visits:</strong> ${total}<br>
         <strong>Societies:</strong> ${societies}
     `;
 }
 
+/* ---------------- LIVE CLOCK ---------------- */
+
+function updateClock() {
+    const now = new Date();
+
+    const formatted = now.toLocaleString("en-IN", {
+        weekday: "long",
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+    });
+
+    const el = document.getElementById("datetime");
+    if (el) {
+        el.textContent = "Current Date & Time: " + formatted;
+    }
+}
+
 /* ---------------- LAST UPDATED ---------------- */
+
 function updateLastUpdated() {
     const now = new Date();
 
-    const formatted = now.toLocaleString(undefined, {
-        dateStyle: "medium",
-        timeStyle: "short"
+    const formatted = now.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
     });
 
     const el = document.getElementById("time");
     if (!el) return;
 
-    el.innerText = "Last synced: " + formatted;
+    el.textContent = "Last synced: " + formatted;
 }
 
 /* ---------------- START ---------------- */
+
 loadData();
+
+updateClock();
+setInterval(updateClock, 1000);
