@@ -185,7 +185,7 @@ function updateClock() {
 
     const el = document.getElementById("datetime");
     if (el) {
-        el.textContent = "Current Date & Time: " + formatted;
+        el.textContent = "Today is: " + formatted;
     }
 }
 
