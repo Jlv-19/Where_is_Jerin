@@ -119,38 +119,84 @@ function normalizeDate(dateStr) {
 }
 
 function formatDate(d) {
-    return `${d.getFullYear()}-${String
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
-                                 /* ---------------- RUNNERS ---------------- */
+function getVisitCount(data, society) {
+    return data.filter(d => d.Society === society).length;
+}
+
+function getLastVisitDays(data, society, currentDate) {
+    const past = data
+        .filter(d => d.Society === society && normalizeDate(d.Date) < currentDate)
+        .sort((a, b) => new Date(b.Date) - new Date(a.Date));
+
+    if (past.length === 0) return "First visit";
+    const last = new Date(normalizeDate(past[0].Date) + "T00:00:00");
+    const current = new Date(currentDate + "T00:00:00");
+    const diff = Math.floor((current - last) / (1000 * 60 * 60 * 24));
+    return diff === 0 ? "Today" : `${diff}d ago`;
+}
+
+/* ---------------- SUMMARY ---------------- */
+function showSummary(data) {
+    const total = data.length;
+    const societies = new Set(data.map(d => d.Society)).size;
+    const el = document.getElementById("summary");
+    if (!el) return;
+
+    el.innerHTML = `
+        <div class="summary-box">
+            <div>📊 <b>Total Recorded Visits:</b> ${total}</div>
+            <div>🏢 <b>Unique Societies:</b> ${societies}</div>
+        </div>
+    `;
+}
+
+/* ---------------- LIVE CLOCK & STATUS METRICS ---------------- */
+function updateClock() {
+    const now = new Date();
+    const formatted = now.toLocaleString("en-IN", {
+        weekday: "short", day: "2-digit", month: "short",
+        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+    });
+    const el = document.getElementById("datetime");
+    if (el) el.textContent = formatted;
+}
+
+/* ---------------- SYNC METRICS ---------------- */
+function updateLastUpdated() {
+    const now = new Date();
+    const el = document.getElementById("time");
+    if (!el) return;
+    el.textContent = "Synced: " + now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+}
+
+/* ---------------- RUNNERS ---------------- */
 loadData();
 updateClock();
 setInterval(updateClock, 1000);
 
-// 100% RELIABLE HYBRID VISITOR COUNTER
+// SELF-CONTAINED LOCAL STORAGE VISITOR COUNTER
 function initializeCounter() {
     const counterEl = document.getElementById("visitCount");
     if (!counterEl) return;
 
-    // Track views on this device instantly (Works 100% even if server is down)
-    let localViews = localStorage.getItem("dashboard_local_views") || 0;
-    localViews = parseInt(localViews) + 1;
-    localStorage.setItem("dashboard_local_views", localViews);
-
-    // Fetch the global overall views from a robust, stable API network
-    // Replace 'visit_dash_prod_2026' with any word string to reset your counter
-    fetch("https://api.counterapi.dev/v1/visit_dash_prod_2026/home/up")
-      .then(res => {
-          if (!res.ok) throw new Error("API Network error");
-          return res.json();
-      })
-      .then(resData => {
-          // If server responds successfully, show the global unique views
-          counterEl.textContent = `${resData.value} views`;
-      })
-      .catch(() => {
-          // Fallback instantly if offline or blocked: Display local counts gracefully
-          counterEl.textContent = `${localViews} views (local)`;
-      });
+    try {
+        let totalViews = localStorage.getItem("dashboard_total_views");
+        
+        if (!totalViews) {
+            totalViews = 1;
+        } else {
+            totalViews = parseInt(totalViews) + 1;
+        }
+        
+        localStorage.setItem("dashboard_total_views", totalViews);
+        counterEl.textContent = `${totalViews} views`;
+        
+    } catch (e) {
+        counterEl.textContent = "1 view";
+    }
 }
 
 initializeCounter();
