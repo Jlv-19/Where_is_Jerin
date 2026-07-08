@@ -50,7 +50,6 @@ function processDashboard(data) {
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
 
-    // Passes the custom clean static label explicitly to your rendering functions
     renderCard("yesterday", data, formatDate(yesterday), "Yesterday");
     renderCard("today", data, formatDate(today), "Today");
     renderCard("tomorrow", data, formatDate(tomorrow), "Tomorrow");
@@ -63,7 +62,6 @@ function renderCard(id, data, dateString, displayLabel) {
     const filtered = data.filter(d => normalizeDate(d.Date) === dateString);
     const dayName = new Date(dateString + "T00:00:00").toLocaleDateString("en-IN", { weekday: "long" });
 
-    // Custom Fix: Force display text to read Yesterday/Today/Tomorrow with sub-details
     container.innerHTML = `<h3>${displayLabel} <span class="day-subtext">(${dayName})</span></h3>`;
 
     if (filtered.length === 0) {
@@ -121,71 +119,4 @@ function normalizeDate(dateStr) {
 }
 
 function formatDate(d) {
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-function getVisitCount(data, society) {
-    return data.filter(d => d.Society === society).length;
-}
-
-function getLastVisitDays(data, society, currentDate) {
-    const past = data
-        .filter(d => d.Society === society && normalizeDate(d.Date) < currentDate)
-        .sort((a, b) => new Date(b.Date) - new Date(a.Date));
-
-    if (past.length === 0) return "First visit";
-    const last = new Date(normalizeDate(past[0].Date) + "T00:00:00");
-    const current = new Date(currentDate + "T00:00:00");
-    const diff = Math.floor((current - last) / (1000 * 60 * 60 * 24));
-    return diff === 0 ? "Today" : `${diff}d ago`;
-}
-
-/* ---------------- SUMMARY ---------------- */
-function showSummary(data) {
-    const total = data.length;
-    const societies = new Set(data.map(d => d.Society)).size;
-    const el = document.getElementById("summary");
-    if (!el) return;
-
-    el.innerHTML = `
-        <div class="summary-box">
-            <div>📊 <b>Total Recorded Visits:</b> ${total}</div>
-            <div>🏢 <b>Unique Societies:</b> ${societies}</div>
-        </div>
-    `;
-}
-
-/* ---------------- LIVE CLOCK & STATUS METRICS ---------------- */
-function updateClock() {
-    const now = new Date();
-    const formatted = now.toLocaleString("en-IN", {
-        weekday: "short", day: "2-digit", month: "short",
-        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
-    });
-    const el = document.getElementById("datetime");
-    if (el) el.textContent = formatted;
-}
-
-function updateLastUpdated() {
-    const now = new Date();
-    const el = document.getElementById("time");
-    if (!el) return;
-    el.textContent = "Synced: " + now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
-}
-
-/* ---------------- RUNNERS ---------------- */
-loadData();
-updateClock();
-setInterval(updateClock, 1000);
-
-// REPAIRED COUNTER: Leverages an instantly active, zero-config layout counter
-fetch("https://api.moecounter.org/count/fieldvisitdash_unique/home")
-  .then(res => res.json())
-  .then(resData => {
-      const counterEl = document.getElementById("visitCount");
-      if (counterEl) counterEl.textContent = `${resData.count} views`;
-  })
-  .catch(() => {
-      const counterEl = document.getElementById("visitCount");
-      if (counterEl) counterEl.textContent = "Views offline";
-  });
+    return `${d.getFullYear()}-${String
