@@ -177,26 +177,34 @@ loadData();
 updateClock();
 setInterval(updateClock, 1000);
 
-// SELF-CONTAINED LOCAL STORAGE VISITOR COUNTER
-function initializeCounter() {
+// GLOBAL WEB INTERNET VISITOR COUNTER 
+function initializeGlobalCounter() {
     const counterEl = document.getElementById("visitCount");
     if (!counterEl) return;
 
-    try {
-        let totalViews = localStorage.getItem("dashboard_total_views");
-        
-        if (!totalViews) {
-            totalViews = 1;
-        } else {
-            totalViews = parseInt(totalViews) + 1;
-        }
-        
-        localStorage.setItem("dashboard_total_views", totalViews);
-        counterEl.textContent = `${totalViews} views`;
-        
-    } catch (e) {
-        counterEl.textContent = "1 view";
-    }
+    // A unique custom namespace locked to your user profile
+    const namespace = "jlv19_where_is_jerin_2026";
+    const key = "homepage";
+
+    // This URL hits the cloud API, increments the database by +1, and returns the total global count
+    fetch(`https://api.counterapi.dev/v1/${namespace}/${key}/up`)
+      .then(res => {
+          if (!res.ok) throw new Error("Database offline");
+          return res.json();
+      })
+      .then(resData => {
+          // Updates layout live with the global shared number
+          counterEl.textContent = `${resData.value} views`;
+      })
+      .catch((err) => {
+          console.warn("Global counter fell back:", err);
+          
+          // Hybrid Fail-Safe: If an ad-blocker flags the server, switch to clean local display 
+          let localBackup = localStorage.getItem("backup_views") || 0;
+          localBackup = parseInt(localBackup) + 1;
+          localStorage.setItem("backup_views", localBackup);
+          counterEl.textContent = `${localBackup} views`;
+      });
 }
 
-initializeCounter();
+initializeGlobalCounter();
