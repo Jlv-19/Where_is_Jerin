@@ -216,3 +216,9 @@ loadData();
 
 updateClock();
 setInterval(updateClock, 1000);
+
+fetch("https://api.countapi.xyz/hit/your-dashboard/home")
+  .then(response => response.json())
+  .then(data => {
+      document.getElementById("visitCount").textContent = data.value;
+  });
