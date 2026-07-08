@@ -120,3 +120,37 @@ function normalizeDate(dateStr) {
 
 function formatDate(d) {
     return `${d.getFullYear()}-${String
+
+                                 /* ---------------- RUNNERS ---------------- */
+loadData();
+updateClock();
+setInterval(updateClock, 1000);
+
+// 100% RELIABLE HYBRID VISITOR COUNTER
+function initializeCounter() {
+    const counterEl = document.getElementById("visitCount");
+    if (!counterEl) return;
+
+    // Track views on this device instantly (Works 100% even if server is down)
+    let localViews = localStorage.getItem("dashboard_local_views") || 0;
+    localViews = parseInt(localViews) + 1;
+    localStorage.setItem("dashboard_local_views", localViews);
+
+    // Fetch the global overall views from a robust, stable API network
+    // Replace 'visit_dash_prod_2026' with any word string to reset your counter
+    fetch("https://api.counterapi.dev/v1/visit_dash_prod_2026/home/up")
+      .then(res => {
+          if (!res.ok) throw new Error("API Network error");
+          return res.json();
+      })
+      .then(resData => {
+          // If server responds successfully, show the global unique views
+          counterEl.textContent = `${resData.value} views`;
+      })
+      .catch(() => {
+          // Fallback instantly if offline or blocked: Display local counts gracefully
+          counterEl.textContent = `${localViews} views (local)`;
+      });
+}
+
+initializeCounter();
