@@ -6,36 +6,38 @@
     <title>Field Visit Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div class="container">
 
     <div class="header">Field Visit Dashboard</div>
 
+    <div class="status-hub">
+        <div class="hub-item">
+            <span class="hub-icon">⏱️</span>
+            <div id="datetime">Loading clock...</div>
+        </div>
+        <div class="hub-divider"></div>
+        <div class="hub-footer">
+            <span id="time">Last synced: --</span>
+            <span class="hub-dot">•</span>
+            <span id="visitCount">Views: Loading...</span>
+        </div>
+    </div>
+
     <div id="summary" class="card"></div>
 
-    <div id="yesterday" class="card">Yesterday</div>
-    <div id="today" class="card today">Today</div>
-    <div id="tomorrow" class="card">Tomorrow</div>
+    <div id="yesterday" class="card"></div>
+    <div id="today" class="card today"></div>
+    <div id="tomorrow" class="card"></div>
 
     <div class="nav">
         <a href="history.html">View Visit History →</a>
     </div>
 
-    <div class="card">
-        <p id="datetime"></p>
-        <p id="time">Last synced: --</p>
-    </div>
-
-    <div class="card">
-    <h3>Total Website Viewers</h3>
-    <p id="visitCount">Loading...</p>
-</div>
-
 </div>
 
 <script src="script.js" defer></script>
-
 </body>
+</html>
 </html>
